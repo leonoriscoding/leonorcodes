@@ -83,7 +83,7 @@ class Menu(QWidget):
         self.maximized_btn.clicked.connect(lambda: self.apply_screen_mode("maximized"))
         screen_panel_layout.addWidget(self.maximized_btn, 0, Qt.AlignCenter)
         
-        self.windowed_btn = QPushButton("Janela Normal")
+        self.windowed_btn = QPushButton("Janela Pequena")
         self.windowed_btn.setFont(QFont('Segoe UI', 12))
         self.windowed_btn.setFixedSize(250, 50)
         self.windowed_btn.setStyleSheet(button_style)
