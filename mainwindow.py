@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout,
                             QToolBar, QAction, QSizePolicy, QStackedWidget)
 from PyQt5.QtCore import Qt, QTimer, QSize
 from PyQt5.QtGui import QFont, QIcon
-from task import tarefa
 
 class FullScreenWindow(QMainWindow):
     def __init__(self):
@@ -18,33 +17,67 @@ class FullScreenWindow(QMainWindow):
         # Configurar a janela principal
         self.setWindowTitle('Aplicação em Tela Cheia Funcional')
         
+        # Estilo geral da aplicação
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #f5f5f5;
+            }
+            QToolBar {
+                background-color: #333;
+                border: none;
+                spacing: 10px;
+                padding: 5px;
+            }
+            QLabel {
+                color: #333;
+            }
+            QListWidget {
+                border-radius: 8px;
+                padding: 5px;
+                font-size: 14px;
+                border: 1px solid #ddd;
+                background-color: white;
+            }
+        """)
+        
         # Criar uma barra de ferramentas no topo
         toolbar = QToolBar("Barra de Ferramentas")
-        toolbar.setIconSize(QSize(16, 16))
+        toolbar.setIconSize(QSize(24, 24))
         toolbar.setMovable(False)
+        toolbar.setFixedHeight(50)  # Define a altura fixa da barra
         self.addToolBar(Qt.TopToolBarArea, toolbar)
         
-        # Adicionar botão de menu à barra de ferramentas
+        # Primeiro espaçador para centralizar o botão de menu
+        spacer1 = QWidget()
+        spacer1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        toolbar.addWidget(spacer1)
+        
+        # Adicionar botão de menu à barra de ferramentas (centralizado)
         self.menu_btn = QPushButton("Menu")
-        self.menu_btn.setFixedSize(80, 30)
+        self.menu_btn.setFont(QFont('Segoe UI', 12, QFont.Bold))
+        self.menu_btn.setFixedSize(120, 40)
+        self.menu_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #e32f81;
+                color: white;
+                border-radius: 8px;
+                padding: 5px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #d42777;
+            }
+            QPushButton:pressed {
+                background-color: #c5216d;
+            }
+        """)
         self.menu_btn.clicked.connect(self.show_menu)
         toolbar.addWidget(self.menu_btn)
         
-        # Adicionar espaçador para alinhar botões à direita
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        toolbar.addWidget(spacer)
-        
-        # Botões no canto direito da barra de ferramentas
-        self.toggle_btn = QPushButton("Sair da Tela Cheia")
-        self.toggle_btn.setFixedSize(120, 30)
-        self.toggle_btn.clicked.connect(self.toggle_fullscreen)
-        toolbar.addWidget(self.toggle_btn)
-        
-        exit_btn = QPushButton("Sair")
-        exit_btn.setFixedSize(60, 30)
-        exit_btn.clicked.connect(self.close)
-        toolbar.addWidget(exit_btn)
+        # Segundo espaçador para centralizar o botão de menu
+        spacer2 = QWidget()
+        spacer2.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        toolbar.addWidget(spacer2)
         
         # Criar um widget empilhado para alternar entre telas
         self.stacked_widget = QStackedWidget()
@@ -53,11 +86,14 @@ class FullScreenWindow(QMainWindow):
         # Criar o widget principal
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout(self.main_widget)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+        self.main_layout.setSpacing(20)
         
         # Adicionar um relógio digital
         self.time_label = QLabel()
         self.time_label.setAlignment(Qt.AlignRight)
-        self.time_label.setFont(QFont('Arial', 28, QFont.Bold))
+        self.time_label.setFont(QFont('Segoe UI', 32, QFont.Bold))
+        self.time_label.setStyleSheet("color: #2c3e50;")
         self.main_layout.addWidget(self.time_label)
        
         # Configurar e iniciar o timer para atualizar o relógio
@@ -71,6 +107,24 @@ class FullScreenWindow(QMainWindow):
        
         # Lista de tarefas
         self.task_list = QListWidget()
+        self.task_list.setFont(QFont('Segoe UI', 14))
+        self.task_list.setStyleSheet("""
+            QListWidget {
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                padding: 10px;
+                background-color: white;
+            }
+            QListWidget::item {
+                padding: 5px;
+                border-bottom: 1px solid #eee;
+            }
+            QListWidget::item:selected {
+                background-color: #4a86e8;
+                color: white;
+                border-radius: 5px;
+            }
+        """)
         tasks_layout.addWidget(self.task_list)
         
         self.main_layout.addLayout(tasks_layout)
@@ -107,34 +161,17 @@ class FullScreenWindow(QMainWindow):
     def set_window_mode(self, mode):
         if mode == "fullscreen":
             self.showFullScreen()
-            self.toggle_btn.setText("Sair da Tela Cheia")
         elif mode == "maximized":
             self.showMaximized()
-            self.toggle_btn.setText("Entrar em Tela Cheia")
         elif mode == "windowed":
             self.showNormal()
             self.resize(800, 600)  # Tamanho padrão para o modo janela
-            self.toggle_btn.setText("Entrar em Tela Cheia")
    
-    def toggle_fullscreen(self):
-        if self.isFullScreen():
-            self.showNormal()
-            self.toggle_btn.setText("Entrar em Tela Cheia")
-        else:
-            self.showFullScreen()
-            self.toggle_btn.setText("Sair da Tela Cheia")
-       
     def keyPressEvent(self, event):
         # Permitir que o usuário saia do modo tela cheia pressionando ESC
         if event.key() == Qt.Key_Escape:
             if self.isFullScreen():
                 self.showNormal()
-                self.toggle_btn.setText("Entrar em Tela Cheia")
        
         # Permitir ALT+F4 ou outros métodos padrão para fechar a aplicação
         super().keyPressEvent(event)
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = FullScreenWindow()
-    sys.exit(app.exec_())
